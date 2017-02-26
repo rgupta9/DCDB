@@ -9,17 +9,19 @@ platform = 'arista_eos'
 username = raw_input('Username? ')
 passy = getpass.getpass()
 
-commandfile = raw_input('command file? ')
-f = open(commandfile, 'r')
-show_commands = f.read()
-show_commands = show_commands.strip()
-show_commands = show_commands.split('\n')
+def openfile(file):
+        f = open(file,'r')
+        x = f.read()
+        x = x.strip()
+        x = x.split('\n')
+        return x
 
+commandfile = raw_input('command file? ')
 targetfile = raw_input('target file? ')
-x = open(targetfile, 'r')
-hostlist =  x.read()
-hostlist = hostlist.strip()
-hostlist = hostlist.split()
+
+show_commands = openfile(commandfile)
+hostlist = openfile(targetfile)
+
 
 outfile = raw_input('output filename? ')
 
