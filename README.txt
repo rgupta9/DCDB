@@ -30,3 +30,7 @@ Display serial number of all devices
 Display all unique version of code running on the DC and then identify devices that are not running the standard
 Query a line of standard config across all devices and identify any anomolies
 
+# Hiarc
+
+> :warning: Hiarc is currently pre-release software. If you are interested in trying it out please email <try@hiarcdb.com>
+> and we'll be happy to help you get it up and running.
