@@ -1,0 +1,78 @@
+#! /opt/python37/bin/python3
+
+from tqdm import tqdm
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from multiprocessing import Pool
+from multiprocessing.dummy import Pool as ThreadPool
+from time import time
+import os, sys, getpass
+from netmiko import ConnectHandler
+from netmiko.ssh_exception import NetMikoTimeoutException
+from paramiko.ssh_exception import SSHException
+
+
+platform = 'cisco_ios'
+username = input('Username? ')
+passy = getpass.getpass()
+
+def openfile(file):
+        f = open(file,'r')
+        x = f.read()
+        x = x.strip()
+        x = x.split('\n')
+        return x
+
+commandfile = input('command file? ')
+targetfile = input('target file? ')
+
+show_commands = openfile(commandfile)
+hostlist = openfile(targetfile)
+
+
+outfile = input('output filename? ')
+
+pool = ThreadPool(10)
+
+def rantgather(host):
+        print(f'#### COLLECTING DATA FOR {host} ###')
+#        file = open(outfile,"a")
+        single_host_total = []
+        try:
+                device = ConnectHandler(device_type=platform, ip=host, username=username, password=passy)
+        except Exception:
+                print(host + " is unavailable")
+        try:
+                device.find_prompt()
+        except Exception:
+                print(host + " is unavailable")
+
+        for item in tqdm(show_commands):
+                try:
+                        output = device.send_command(item)
+                except:
+                        continue
+                output = output.split('\n')
+                single_cmd_out = []
+                for line in output:
+                        single_cmd_out.append(f'{host} |{item}| {line}\n')
+                single_host_total.append(single_cmd_out)
+        with open(outfile, 'a') as file:
+                for item in single_host_total:
+                        for line in item:
+                                file.write(line)
+        return single_host_total
+#        print(single_host_total)
+#        device.disconnect()
+#        for item in single_host_total:
+#                for line in item:
+#                        print(line)
+
+#start = time()
+
+pool.map(rantgather,hostlist)
+pool.close()
+pool.join()
+
+
+#for item in hostlist:
+#        print(rantgather(item))
